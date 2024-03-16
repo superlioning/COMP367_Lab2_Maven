@@ -2,14 +2,18 @@ pipeline {
     agent any
 
     tools {
-            maven "M3"
-        }
+        maven "M3"
+    }
+
+    triggers {
+        // Polls SCM every 5 minutes
+        pollSCM('H/5 * * * *')
+    }
 
     stages {
         stage('Build') {
             steps {
                 echo 'Building..'
-                // Runs a Maven build
                 sh 'mvn clean package'
             }
         }
