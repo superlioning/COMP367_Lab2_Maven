@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-        DOCKER_CREDENTIALS_ID = 'dockerHubCredentials'
+        DOCKERHUB_PWD=credentials('CredentialID_DockerHubPWD')
         IMAGE_TAG = "lioning/comp367_maven:${env.BUILD_ID}"
     }
 
@@ -17,7 +17,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                git branch: 'main', url: 'https://github.com/superlioning/COMP367_Lab2_Maven'
             }
         }
 
@@ -41,7 +41,7 @@ pipeline {
         stage('Docker Build') {
             steps {
                 script {
-                    docker.build(IMAGE_TAG)
+                    sh "docker build -t ${IMAGE_TAG} ."
                 }
             }
         }
@@ -49,8 +49,7 @@ pipeline {
         stage('Docker Login') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
-                    }
+                    sh "docker login -u lioning -p ${DOCKERHUB_PWD}"
                 }
             }
         }
@@ -58,7 +57,7 @@ pipeline {
         stage('Docker Push') {
             steps {
                 script {
-                    docker.image(IMAGE_TAG).push()
+                    sh "docker push ${IMAGE_TAG}"
                 }
             }
         }
